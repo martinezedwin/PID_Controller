@@ -3,6 +3,17 @@
 
 class PID {
  public:
+  double p_error;
+  double i_error;
+  double d_error;
+
+  /**
+   * PID Coefficients
+   */ 
+  double Kp;
+  double Ki;
+  double Kd;
+
   /**
    * Constructor
    */
@@ -35,16 +46,7 @@ class PID {
   /**
    * PID Errors
    */
-  double p_error;
-  double i_error;
-  double d_error;
 
-  /**
-   * PID Coefficients
-   */ 
-  double Kp;
-  double Ki;
-  double Kd;
 };
 
 #endif  // PID_H
