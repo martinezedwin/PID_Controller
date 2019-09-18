@@ -66,8 +66,9 @@ int main() {
           double cte = std::stod(j[1]["cte"].get<std::string>());           //Read in cross track error (cte)
           double speed = std::stod(j[1]["speed"].get<string>());            //Read in speed
           double angle = std::stod(j[1]["steering_angle"].get<string>());   //Read in steering angle
-          std::cout
+          
           double steer_value; //Declare the steering value we will 
+          double steer_value_Twiddle;
           double gas_value;
           /**
            * TODO: Calculate steering value here, remember the steering value is
@@ -76,8 +77,10 @@ int main() {
            *   Maybe use another PID controller to control the speed!
            */
           
-          steer_pid.UpdateError(cte);            //Calculate the errors for each P, I, and D.
-          steer_value = steer_pid.TotalError();  //Calculate hte total error PID and set the steering value to that.
+          //steer_pid.UpdateError(cte);            //Calculate the errors for each P, I, and D.
+          //steer_value = steer_pid.TotalError();  //Calculate hte total error PID and set the steering value to that.
+
+          steer_value_Twiddle = steer_pid.Twiddle(steer_pid, cte);
 
           pid_speed.UpdateError(speed-20);
           gas_value = pid_speed.TotalError();
@@ -87,7 +90,7 @@ int main() {
                     << std::endl;
 
           json msgJson;
-          msgJson["steering_angle"] = steer_value;               //Feed the steering value to 
+          msgJson["steering_angle"] = steer_value_Twiddle;//steer_value;               //Feed the steering value to 
           msgJson["throttle"] = 0.3;//gas_value;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;

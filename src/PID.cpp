@@ -1,5 +1,6 @@
 #include "PID.h"
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -24,7 +25,7 @@ void PID::Init(double Kp_, double Ki_, double Kd_) {
   d_error = 0.0;
   i_error = 0.0;
 
-  std::cout<<"Done Initializing"<<std::endl;
+  //std::cout<<"Done Initializing"<<std::endl;
 
 }
 
@@ -44,10 +45,21 @@ double PID::TotalError() {
   /**
    * TODO: Calculate and return the total error
    */
+
+
   return (-(Kp*p_error)) - (Kd*d_error) - (Ki*i_error);  // TODO: Add your total error calc here!
 }
 
-double PID::Twiddle(double tol){
+double PID::Twiddle(PID &pid, double cte){
+  double result;//vector<double> result;
+  std::cout<<"Initiated Twiddle"<<std::endl;
 
-  
+  vector<double> dp = {0.0, 0.0, 0.0};
+  vector<double> p = {Kp, Ki, Kd};
+
+  pid.UpdateError(cte);
+  result = pid.TotalError();
+
+  std::cout<<"Returning Total Error!"<<std::endl;
+  return result;
 }

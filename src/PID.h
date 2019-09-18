@@ -42,6 +42,8 @@ class PID {
    */
   double TotalError();
 
+  double Twiddle(PID &pid, double cte);
+
  private:
   /**
    * PID Errors
