@@ -33,21 +33,24 @@ string hasData(string s) {
 int main() {
   uWS::Hub h;
 
-  PID pid;
+  PID steer_pid; //declare steering pid of type PID
   PID pid_speed;
 
   /**
    * TODO: Initialize the pid variable.
    */
-  double k_p = 0.14;//0.044;//0.038; //0.2; //0.35;  //0.1; 
-  double k_i = 0.0001;//0.0001; //0.000005;   //0.004; //0.01;  //0.0001;
-  double k_d = 2.5;//0.0001;//180.0;  //3.0; //0.004; //1.0;
+  double k_p = 0.097221000; //0.14;//0.044;//0.038; //0.2; //0.35;  //0.1; 
+  double k_i = 0.000018;    //0.0001;//0.0001; //0.000005;   //0.004; //0.01;  //0.0001;
+  double k_d = 1.992889;    //2.5;//0.0001;//180.0;  //3.0; //0.004; //1.0;
 
-  std::cout<<"Initializing"<<std::endl;
-  pid.Init(k_p, k_i, k_d);
-  pid_speed.Init(k_p, k_i, k_d);
+  double s_k_p = 0.109170;  //0.14;//0.044;//0.038; //0.2; //0.35;  //0.1; 
+  double s_k_i = 0.000754;  //0.0001;//0.0001; //0.000005;   //0.004; //0.01;  //0.0001;
+  double s_k_d = 0.841226;  //2.5;//0.0001;//180.0;  //3.0; //0.004; //1.0;
 
-  h.onMessage([&pid, &pid_speed](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
+  steer_pid.Init(k_p, k_i, k_d);           //Initialize the steering pid with k_p, k_i, and k_d constants
+  pid_speed.Init(s_k_p, s_k_i, s_k_d);     //Initialize the speed pid with k_p, k_i, and k_d constants
+
+  h.onMessage([&steer_pid, &pid_speed](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -60,10 +63,11 @@ int main() {
         string event = j[0].get<string>();
         if (event == "telemetry") {
           // j[1] is the data JSON object
-          double cte = std::stod(j[1]["cte"].get<std::string>());
-          double speed = std::stod(j[1]["speed"].get<string>());
-          double angle = std::stod(j[1]["steering_angle"].get<string>());
-          double steer_value;
+          double cte = std::stod(j[1]["cte"].get<std::string>());           //Read in cross track error (cte)
+          double speed = std::stod(j[1]["speed"].get<string>());            //Read in speed
+          double angle = std::stod(j[1]["steering_angle"].get<string>());   //Read in steering angle
+          std::cout
+          double steer_value; //Declare the steering value we will 
           double gas_value;
           /**
            * TODO: Calculate steering value here, remember the steering value is
@@ -71,24 +75,9 @@ int main() {
            * NOTE: Feel free to play around with the throttle and speed.
            *   Maybe use another PID controller to control the speed!
            */
-          //std::cout<<"Call UpdateError"<<std::endl;
-          pid.UpdateError(cte);
-          //std::cout<<"Calling TotalError"<<std::endl;
-          steer_value = pid.TotalError();
-          if(fabs(steer_value)>1.0){
-            std::cout<<"HELLO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-            std::cout<<"HELLO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-            std::cout<<"HELLO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-            std::cout<<"HELLO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-            std::cout<<"HELLO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-            std::cout<<"HELLO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-            std::cout<<"HELLO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-            std::cout<<"HELLO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-            std::cout<<"HELLO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-            std::cout<<"HELLO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-
-          }
-          steer_value = (fabs(steer_value) > 1.0) ? copysign(1.0, steer_value) : steer_value;
+          
+          steer_pid.UpdateError(cte);            //Calculate the errors for each P, I, and D.
+          steer_value = steer_pid.TotalError();  //Calculate hte total error PID and set the steering value to that.
 
           pid_speed.UpdateError(speed-20);
           gas_value = pid_speed.TotalError();
@@ -98,8 +87,8 @@ int main() {
                     << std::endl;
 
           json msgJson;
-          msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;
+          msgJson["steering_angle"] = steer_value;               //Feed the steering value to 
+          msgJson["throttle"] = 0.3;//gas_value;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
