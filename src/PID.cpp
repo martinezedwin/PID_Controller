@@ -46,3 +46,8 @@ double PID::TotalError() {
    */
   return (-(Kp*p_error)) - (Kd*d_error) - (Ki*i_error);  // TODO: Add your total error calc here!
 }
+
+double PID::Twiddle(double tol){
+
+  
+}
