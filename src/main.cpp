@@ -39,18 +39,19 @@ int main() {
   /**
    * TODO: Initialize the pid variable.
    */
-  double k_p = 0.044;//0.097221000; //0.14;//0.044;//0.038; //0.2; //0.35;  //0.1; 
-  double k_i = 0.000005;//0.000018;    //0.0001;//0.0001; //0.000005;   //0.004; //0.01;  //0.0001;
-  double k_d = 2.0;//1.992889;    //2.5;//0.0001;//180.0;  //3.0; //0.004; //1.0;
+  double k_p = 0.1;      //0.044;//0.097221000; //0.14;//0.044;//0.038; //0.2; //0.35;  //0.1; 
+  double k_i = 0.0001;   //0.00005;//0.000018;    //0.0001;//0.0001; //0.000005;   //0.004; //0.01;  //0.0001;
+  double k_d = 1.0;        //2.0;//1.992889;    //2.5;//0.0001;//180.0;  //3.0; //0.004; //1.0;
 
-  double s_k_p = 0.109170;  //0.14;//0.044;//0.038; //0.2; //0.35;  //0.1; 
-  double s_k_i = 0.000754;  //0.0001;//0.0001; //0.000005;   //0.004; //0.01;  //0.0001;
-  double s_k_d = 0.841226;  //2.5;//0.0001;//180.0;  //3.0; //0.004; //1.0;
+  double s_k_p = 0.0;  //0.14;//0.044;//0.038; //0.2; //0.35;  //0.1; 
+  double s_k_i = 0.0;  //0.0001;//0.0001; //0.000005;   //0.004; //0.01;  //0.0001;
+  double s_k_d = 0.0;  //2.5;//0.0001;//180.0;  //3.0; //0.004; //1.0;
 
   std::vector<double> k = {k_p, k_i, k_d};
+  std::vector<double> ks = {s_k_p, s_k_i, s_k_d};
 
   steer_pid.Init(k);//k_p, k_i, k_d);           //Initialize the steering pid with k_p, k_i, and k_d constants
-  pid_speed.Init(k);//s_k_p, s_k_i, s_k_d);     //Initialize the speed pid with k_p, k_i, and k_d constants
+  pid_speed.Init(ks);//s_k_p, s_k_i, s_k_d);     //Initialize the speed pid with k_p, k_i, and k_d constants
 
   h.onMessage([&steer_pid, &pid_speed](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
                      uWS::OpCode opCode) {
@@ -79,14 +80,11 @@ int main() {
            *   Maybe use another PID controller to control the speed!
            */
           
-          //steer_pid.UpdateError(cte);            //Calculate the errors for each P, I, and D.
-          //steer_value = steer_pid.TotalError();  //Calculate hte total error PID and set the steering value to that.
+          steer_pid.UpdateError(cte);            //Calculate the errors for each P, I, and D.
+          steer_value = steer_pid.TotalError();  //Calculate hte total error PID and set the steering value to that.
 
-          steer_value_Twiddle = steer_pid.Twiddle(steer_pid, cte);
-          steer_value = steer_value_Twiddle; 
-
-          //pid_speed.UpdateError(speed-20);
-          //gas_value = pid_speed.TotalError();
+          pid_speed.UpdateError(speed-10);
+          gas_value = pid_speed.TotalError();
           
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value 
@@ -94,7 +92,7 @@ int main() {
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;               //Feed the steering value to 
-          msgJson["throttle"] = 0.2;//gas_value;
+          msgJson["throttle"] = 0.11;//gas_value;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
