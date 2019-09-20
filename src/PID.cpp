@@ -41,7 +41,7 @@ void PID::UpdateError(double cte) {
   /**
    * TODO: Update PID errors based on cte.
    */
-  std::cout<<"Starting error update"<<std::endl;
+  //std::cout<<"Starting error update"<<std::endl;
   p_error = cte;             //p error
   d_error = cte - p_error;   //d error
   i_error += cte;            //i error 
@@ -65,7 +65,7 @@ void PID::Restart(uWS::WebSocket<uWS::SERVER> ws) {
 
 double PID::Twiddle(PID &pid, double cte){
   double result;//vector<double> result;
-  std::cout<<"Initiated Twiddle"<<std::endl;
+  //std::cout<<"Initiated Twiddle"<<std::endl;
 
   vector<double> dp = {1.0, 1.0, 1.0};
   vector<double> p = {Kp, Ki, Kd};
