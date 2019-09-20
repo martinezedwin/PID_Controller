@@ -71,28 +71,17 @@ int main() {
           double angle = std::stod(j[1]["steering_angle"].get<string>());   //Read in steering angle
           
           double steer_value; //Declare the steering value we will 
-          double steer_value_Twiddle;
-          double gas_value;
-          /**
-           * TODO: Calculate steering value here, remember the steering value is
-           *   [-1, 1].
-           * NOTE: Feel free to play around with the throttle and speed.
-           *   Maybe use another PID controller to control the speed!
-           */
           
           steer_pid.UpdateError(cte);            //Calculate the errors for each P, I, and D.
           steer_value = steer_pid.TotalError();  //Calculate hte total error PID and set the steering value to that.
-
-          pid_speed.UpdateError(speed-10);
-          gas_value = pid_speed.TotalError();
           
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value 
                     << std::endl;
 
           json msgJson;
-          msgJson["steering_angle"] = steer_value;               //Feed the steering value to 
-          msgJson["throttle"] = 0.11;//gas_value;
+          msgJson["steering_angle"] = steer_value; //Feed the steering value to 
+          msgJson["throttle"] = 0.11;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);

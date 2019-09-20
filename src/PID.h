@@ -43,10 +43,6 @@ class PID {
    */
   double TotalError();
 
-  void Restart(uWS::WebSocket<uWS::SERVER> ws);
-
-  double Twiddle(PID &pid, double cte);
-
  private:
   /**
    * PID Errors
