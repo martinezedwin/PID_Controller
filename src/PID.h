@@ -1,3 +1,4 @@
+#include <uWS/uWS.h>
 #ifndef PID_H
 #define PID_H
 
@@ -28,7 +29,7 @@ class PID {
    * Initialize PID.
    * @param (Kp_, Ki_, Kd_) The initial PID coefficients
    */
-  void Init(double Kp_, double Ki_, double Kd_);
+  void Init(std::vector<double> &k);//double Kp_, double Ki_, double Kd_);
 
   /**
    * Update the PID error variables given cross track error.
@@ -41,6 +42,8 @@ class PID {
    * @output The total PID error
    */
   double TotalError();
+
+  void Restart(uWS::WebSocket<uWS::SERVER> ws);
 
   double Twiddle(PID &pid, double cte);
 
